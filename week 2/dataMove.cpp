@@ -7,7 +7,7 @@ void MovingRight(int arr[], int currentSize, int insertIndex){
     }
 }
 
-void printArray (int arr[], int size){
+void insertArray (int arr[], int size){
     for (int i = 0; i < size; i++){
         cout << arr[i];
         if (i < size - 1){
@@ -38,7 +38,7 @@ int main(){
     }
 
     cout << "\n array before moving: " << endl;
-    printArray(number, currentSize);
+    instertArray (number, currentSize);
 
     if (currentSize < CAPACITY){
         cout << "\n new storage of array: " << endl;
