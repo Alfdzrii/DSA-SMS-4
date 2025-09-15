@@ -15,19 +15,16 @@ void printArray (const dataMove2 arr[], int size){
 
 int main(){
 
-    dataMove2 A[10];
-    const int arraySize = 9;
+    int d;
+    cout << "input the size of array: ";
+    cin >> d;
+    dataMove2 A[d];
+    const int arraySize = d;
 
-    A[0].data = 10;
-    A[1].data = 20;
-    A[2].data = 16;
-    A[3].data = 14;
-    A[4].data = 12;
-    A[5].data = 432;
-    A[6].data = 111;
-    A[7].data = 43;
-    A[8].data = 1;
-    A[9].data = 13;
+    for (int i = 0; i < arraySize; i++){
+        cout << "number of "<< i +1 << ": ";
+        cin >> A[i].data;
+    }
     
     printArray(A, arraySize);
     cout << endl;
