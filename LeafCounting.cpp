@@ -1,16 +1,28 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
-struct Tree{
+struct Tree {
     Tree *FC;  // First Child
     Tree *NS;  // Next Sibling
-    int data;
-    char name;
+    string name;
+    int size;
+    bool isFile;
 };
 
-// counting leaf nodes
-int CountLeaves(Tree *t)
-{
+// add new node
+Tree* createNode(string name, int size = 0, bool isFile = false) {
+    Tree* node = new Tree;
+    node->name = name;
+    node->size = size;
+    node->isFile = isFile;
+    node->FC = NULL;
+    node->NS = NULL;
+    return node;
+}
+
+// leaf counting
+int CountLeaves(Tree *t) {
     if (!t) {
         return 0;
     }
@@ -23,121 +35,136 @@ int CountLeaves(Tree *t)
     else {
         count = CountLeaves(t->FC);
     }
+    
     count += CountLeaves(t->NS);
     
     return count;
 }
 
-// count leafPre-order Traversal 
-int CountLeavesPreOrder(Tree *t)
-{
-    if (!t) {
-        return 0;
-    }
-    
-    cout << "Visit: " << t->name << " ";
-    
-    int count = 0;
-    
-    if (!(t->FC)) {
-        cout << "(LEAF)" << endl;
-        count = 1;
-    }
-    else {
-        cout << "(Internal Node)" << endl;
-        count = CountLeavesPreOrder(t->FC);
-    }
-    
-    count += CountLeavesPreOrder(t->NS);
-    
-    return count;
-}
-
-// count leaf In-order Traversal
-int CountLeavesInOrder(Tree *t)
-{
+// leaf Pre-order
+int DisplayLeavesPreOrder(Tree *t, int depth = 0) {
     if (!t) {
         return 0;
     }
     
     int count = 0;
     
+    // Print indentation
+    for (int i = 0; i < depth; i++) {
+        cout << "  ";
+    }
+    
+    cout << t->name;
+    
     if (!(t->FC)) {
-        cout << "Visit: " << t->name << " (LEAF)" << endl;
+        cout << " [LEAF]";
+        if (t->isFile && t->size > 0) {
+            cout << " (size: " << t->size << ")";
+        }
+        cout << endl;
         count = 1;
     }
     else {
-        count = CountLeavesInOrder(t->FC);
-        cout << "Visit: " << t->name << " (Internal Node)" << endl;
+        cout << " [DIR]" << endl;
+        count = DisplayLeavesPreOrder(t->FC, depth + 1);
     }
     
-    count += CountLeavesInOrder(t->NS);
+    count += DisplayLeavesPreOrder(t->NS, depth);
     
     return count;
 }
 
-// count leaf Post-order Traversal
-int CountLeavesPostOrder(Tree *t)
-{
+// leaf listing
+void ListOnlyLeaves(Tree *t, int depth = 0) {
     if (!t) {
-        return 0;
-    }
-    
-    int count = 0;
-    
+        return;
+    }   
     if (!(t->FC)) {
-        count = 1;
-        cout << "Visit: " << t->name << " (LEAF)" << endl;
+        for (int i = 0; i < depth; i++) {
+            cout << "  ";
+        }
+        cout << "- " << t->name;
+        if (t->isFile && t->size > 0) {
+            cout << " (" << t->size << " bytes)";
+        }
+        cout << endl;
     }
     else {
-        count = CountLeavesPostOrder(t->FC);
-        cout << "Visit: " << t->name << " (Internal Node)" << endl;
+        ListOnlyLeaves(t->FC, depth + 1);
     }
     
-    count += CountLeavesPostOrder(t->NS);
-    
-    return count;
+    ListOnlyLeaves(t->NS, depth);
 }
 
-
-// create node
-Tree* createNode(char name, int data) {
-    Tree* node = new Tree;
-    node->name = name;
-    node->data = data;
-    node->FC = NULL;
-    node->NS = NULL;
-    return node;
-}
-
-int main()
-{
+int main() {
     
-    Tree *root = createNode('A', 1);
-    root->FC = createNode('B', 2);
-    root->FC->NS = createNode('C', 3);
-    root->FC->NS->NS = createNode('D', 4);
+    Tree *root = createNode("usr", 0, false);
     
-    root->FC->FC = createNode('E', 5);
-    root->FC->FC->NS = createNode('F', 6);
+    Tree *mark = createNode("mark", 0, false);
+    root->FC = mark;
     
-    root->FC->NS->NS->FC = createNode('G', 7);
+    Tree *book = createNode("book", 0, false);
+    mark->FC = book;
     
-    cout << "=== Menghitung Leaf Nodes ===" << endl;
-    int totalLeaves = CountLeaves(root);
-    cout << "Total Leaf Nodes: " << totalLeaves << endl << endl;
+    Tree *c1r = createNode("c1.r", 3, true);
+    book->FC = c1r;
+    c1r->NS = createNode("c2.r", 2, true);
+    c1r->NS->NS = createNode("c3.r", 4, true);
     
-    cout << "=== Pre-order Traversal ===" << endl;
-    int leavesPreOrder = CountLeavesPreOrder(root);
-    cout << "Total Leaves (Pre-order): " << leavesPreOrder << endl << endl;
+    Tree *crs1 = createNode("crs1", 0, false);
+    book->NS = crs1;
     
-    cout << "=== In-order Traversal ===" << endl;
-    int leavesInOrder = CountLeavesInOrder(root);
-    cout << "Total Leaves (In-order): " << leavesInOrder << endl << endl;
+    Tree *cop3530 = createNode("cop3530", 0, false);
+    crs1->FC = cop3530;
     
-    cout << "=== Post-order Traversal ===" << endl;
-    int leavesPostOrder = CountLeavesPostOrder(root);
-    cout << "Total Leaves (Post-order): " << leavesPostOrder << endl;
+    Tree *fal88 = createNode("fal88", 1, true);
+    cop3530->FC = fal88;
+    fal88->NS = createNode("spr89", 2, true);
+    fal88->NS->NS = createNode("sum89", 3, true);
+    fal88->NS->NS->NS = createNode("syl.r", 12, true);
+    
+    Tree *alex = createNode("alex", 0, false);
+    mark->NS = alex;
+    
+    Tree *junk1 = createNode("junk.c", 6, true);
+    alex->FC = junk1;
+    junk1->NS = createNode("junk.c", 30, true);
+    
+    Tree *bill = createNode("bill", 0, false);
+    alex->NS = bill;
+    
+    Tree *work = createNode("work", 0, false);
+    bill->FC = work;
+    
+    Tree *crs2 = createNode("crs2", 0, false);
+    work->FC = crs2;
+    
+    Tree *cop3212 = createNode("cop3212", 0, false);
+    crs2->FC = cop3212;
+    
+    Tree *fal88_2 = createNode("fal88", 9, true);
+    cop3212->FC = fal88_2;
+    
+    
+    cout << "============================================" << endl;
+    cout << "   TREE STRUCTURE WITH LEAF INDICATORS" << endl;
+    cout << "============================================" << endl;
+    int totalLeaves = DisplayLeavesPreOrder(root);
+    cout << endl;
+    
+    cout << "============================================" << endl;
+    cout << "   TOTAL LEAF NODES: " << totalLeaves << endl;
+    cout << "============================================" << endl;
+    cout << endl;
+    
+    cout << "============================================" << endl;
+    cout << "   LIST OF LEAF NODES ONLY" << endl;
+    cout << "============================================" << endl;
+    ListOnlyLeaves(root);
+    cout << endl;
+    
+    int count = CountLeaves(root);
+    cout << "Verification - Total Leaves: " << count << endl;
     
     return 0;
 }
