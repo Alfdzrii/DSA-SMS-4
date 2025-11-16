@@ -3,14 +3,14 @@
 using namespace std;
 
 struct Tree {
-    Tree *FC;  // First Child
-    Tree *NS;  // Next Sibling
+    Tree *FC;
+    Tree *NS;
     string name;
     int size;
     bool isFile;
 };
 
-// add new node
+// creating new node
 Tree* createNode(string name, int size = 0, bool isFile = false) {
     Tree* node = new Tree;
     node->name = name;
@@ -21,7 +21,7 @@ Tree* createNode(string name, int size = 0, bool isFile = false) {
     return node;
 }
 
-// leaf counting
+// count leaves
 int CountLeaves(Tree *t) {
     if (!t) {
         return 0;
@@ -41,15 +41,14 @@ int CountLeaves(Tree *t) {
     return count;
 }
 
-// leaf Pre-order
-int DisplayLeavesPreOrder(Tree *t, int depth = 0) {
+// display leaves on preorder
+int DisplayLeavesPreOrder(Tree *t, int depth = 0, int &leafCounter = *(new int(0))) {
     if (!t) {
         return 0;
     }
     
     int count = 0;
     
-    // Print indentation
     for (int i = 0; i < depth; i++) {
         cout << "  ";
     }
@@ -57,7 +56,8 @@ int DisplayLeavesPreOrder(Tree *t, int depth = 0) {
     cout << t->name;
     
     if (!(t->FC)) {
-        cout << " [LEAF]";
+        leafCounter++;
+        cout << " [LEAF #" << leafCounter << "]";
         if (t->isFile && t->size > 0) {
             cout << " (size: " << t->size << ")";
         }
@@ -66,38 +66,64 @@ int DisplayLeavesPreOrder(Tree *t, int depth = 0) {
     }
     else {
         cout << " [DIR]" << endl;
-        count = DisplayLeavesPreOrder(t->FC, depth + 1);
+        count = DisplayLeavesPreOrder(t->FC, depth + 1, leafCounter);
     }
     
-    count += DisplayLeavesPreOrder(t->NS, depth);
+    count += DisplayLeavesPreOrder(t->NS, depth, leafCounter);
     
     return count;
 }
 
-// leaf listing
-void ListOnlyLeaves(Tree *t, int depth = 0) {
+// list only leaves
+void ListOnlyLeaves(Tree *t, int &leafNum, int depth = 0) {
     if (!t) {
         return;
-    }   
+    }
+    
     if (!(t->FC)) {
+        leafNum++;
         for (int i = 0; i < depth; i++) {
             cout << "  ";
         }
-        cout << "- " << t->name;
+        cout << leafNum << ". " << t->name;
         if (t->isFile && t->size > 0) {
             cout << " (" << t->size << " bytes)";
         }
         cout << endl;
     }
     else {
-        ListOnlyLeaves(t->FC, depth + 1);
+        ListOnlyLeaves(t->FC, leafNum, depth + 1);
     }
     
-    ListOnlyLeaves(t->NS, depth);
+    ListOnlyLeaves(t->NS, leafNum, depth);
+}
+
+// count leaves
+int CountLeavesWithProcess(Tree *t, int &leafCount) {
+    if (!t) {
+        return 0;
+    }
+    
+    cout << "Visiting: " << t->name;
+    
+    int count = 0;
+    
+    if (!(t->FC)) {
+        leafCount++;
+        cout << " -> LEAF FOUND! Total leaves so far: " << leafCount << endl;
+        count = 1;
+    }
+    else {
+        cout << " -> Directory (has children)" << endl;
+        count = CountLeavesWithProcess(t->FC, leafCount);
+    }
+    
+    count += CountLeavesWithProcess(t->NS, leafCount);
+    
+    return count;
 }
 
 int main() {
-    
     Tree *root = createNode("usr", 0, false);
     
     Tree *mark = createNode("mark", 0, false);
@@ -149,7 +175,8 @@ int main() {
     cout << "============================================" << endl;
     cout << "   TREE STRUCTURE WITH LEAF INDICATORS" << endl;
     cout << "============================================" << endl;
-    int totalLeaves = DisplayLeavesPreOrder(root);
+    int leafCounter = 0;
+    int totalLeaves = DisplayLeavesPreOrder(root, 0, leafCounter);
     cout << endl;
     
     cout << "============================================" << endl;
@@ -160,11 +187,27 @@ int main() {
     cout << "============================================" << endl;
     cout << "   LIST OF LEAF NODES ONLY" << endl;
     cout << "============================================" << endl;
-    ListOnlyLeaves(root);
+    int leafNum = 0;
+    ListOnlyLeaves(root, leafNum);
+    cout << "\nTotal Leaf Nodes: " << leafNum << endl;
+    cout << "============================================" << endl;
+    cout << endl;
+    
+    cout << "============================================" << endl;
+    cout << "   COUNTING PROCESS (Pre-order Traversal)" << endl;
+    cout << "============================================" << endl;
+    int processLeafCount = 0;
+    CountLeavesWithProcess(root, processLeafCount);
+    cout << "\n*** FINAL COUNT: " << processLeafCount << " leaf nodes found ***" << endl;
+    cout << "============================================" << endl;
     cout << endl;
     
     int count = CountLeaves(root);
-    cout << "Verification - Total Leaves: " << count << endl;
+    cout << "============================================" << endl;
+    cout << "   VERIFICATION" << endl;
+    cout << "============================================" << endl;
+    cout << "Simple Count Function Result: " << count << " leaves" << endl;
+    cout << "============================================" << endl;
     
     return 0;
 }
